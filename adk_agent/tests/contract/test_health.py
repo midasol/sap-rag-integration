@@ -8,7 +8,7 @@ async def test_health_ok(monkeypatch):
         ("DATABASE_URL", "postgresql://x"),
         ("SAP_HOST", "h"),
         ("SAP_AUTH_TYPE", "basic"),
-        ("EMBED_MODEL", "gemini-embedding-001"),
+        ("EMBED_MODEL", "gemini-embedding-2"),
         ("EMBED_OUTPUT_DIM", "3072"),
         ("SAP_CRED_ENCRYPTION_KEY", "x" * 44),
     ]:

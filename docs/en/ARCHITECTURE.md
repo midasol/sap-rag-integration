@@ -61,7 +61,7 @@ ADK agent via the vendored `adk_agent/sap_gw_connector` package.
 | Agent | Google ADK Python (`google-adk>=1.27`), `LlmAgent` with 5 tools, optional MCP toolset |
 | Agent transport | FastAPI built by `google.adk.cli.fast_api.get_fast_api_app`, SSE on `/run_sse` |
 | LLM | `gemini-3.1-pro-preview` (override via `SAP_AGENT_MODEL`) |
-| Embedding | `gemini-embedding-2-preview` (Next.js ingestion) and `gemini-embedding-001` (ADK query path); both produce 3072-dim vectors |
+| Embedding | `gemini-embedding-2` (both ingestion and ADK query path); produces 3072-dim vectors |
 | Vector store | PostgreSQL 17 + `pgvector` with `halfvec(3072)` and HNSW index |
 | File storage | Google Cloud Storage; served back via `/api/files/...` with traversal guard |
 | Auth (web) | iron-session cookie `sap_session` (8 h); separate `sap_oauth_pending` cookie (10 m) |
@@ -174,7 +174,7 @@ flowchart LR
   Cat -- text --> Chunk["chunkText(2000, 200)"]
   Cat -- pdf --> Split["pdf-lib split into 6-page slices"]
   Cat -- image/audio/video --> Multi["multimodal embed + AI summary"]
-  Chunk --> Embed["gemini-embedding-2-preview (3072d)"]
+  Chunk --> Embed["gemini-embedding-2 (3072d)"]
   Split --> Embed
   Multi --> Embed
   Embed --> Upload["uploadToGCS uploads/{uuid}{ext}"]

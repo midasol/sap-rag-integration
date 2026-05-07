@@ -430,7 +430,7 @@ SAP_SESSION_SECRET=<32+ char secret — openssl rand -base64 48>
 
 # === Optional ===
 GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
-# GEMINI_EMBEDDING_MODEL=gemini-embedding-2-preview
+# GEMINI_EMBEDDING_MODEL=gemini-embedding-2
 # GEMINI_CHAT_MODEL=gemini-3.1-pro-preview
 
 # === ADK Backend ===
@@ -731,7 +731,7 @@ cp adk_agent/.env.example adk_agent/.env
 ```env
 # === Database / RAG ===
 DATABASE_URL=postgresql://username:password@localhost:5432/gemini_rag
-EMBED_MODEL=gemini-embedding-2-preview
+EMBED_MODEL=gemini-embedding-2
 EMBED_OUTPUT_DIM=3072
 EMBED_NORMALIZE=false
 
@@ -1048,7 +1048,7 @@ The batch pipeline fails immediately when a rate limit is encountered. Rate-limi
 | Chat UI / Ingestion | Next.js 16 (App Router), TypeScript, React 19 |
 | Agent Framework | Google ADK (Python), single LlmAgent |
 | Agent API | FastAPI, port 8200 |
-| Embedding Model | gemini-embedding-2-preview (3072 dimensions) |
+| Embedding Model | gemini-embedding-2 (3072 dimensions) |
 | LLM | Gemini (streaming, tool use) |
 | Vector DB | PostgreSQL + pgvector |
 | ORM | Drizzle ORM |

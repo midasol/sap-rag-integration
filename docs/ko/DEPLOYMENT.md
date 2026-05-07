@@ -23,7 +23,7 @@
 | `SAP_SESSION_SECRET` | 예 | — | iron-session 서명 키. ≥ 32자. `openssl rand -base64 48` |
 | `ADK_BASE_URL` | 예 | `http://localhost:8200` | `process.env`로 직접 읽음; `pnpm predev`가 이 URL을 health-probe |
 | `GOOGLE_APPLICATION_CREDENTIALS` | 아니오 | — | 서비스 계정 JSON의 절대 경로. 미설정 시 ADC로 폴백. `pnpm gcp:setup`이 채움 |
-| `GEMINI_EMBEDDING_MODEL` | 아니오 | `gemini-embedding-2-preview` | 인제스션에 사용되는 3072차원 임베딩 모델 |
+| `GEMINI_EMBEDDING_MODEL` | 아니오 | `gemini-embedding-2` | 인제스션에 사용되는 3072차원 임베딩 모델 |
 | `GEMINI_CHAT_MODEL` | 아니오 | `gemini-3.1-pro-preview` | `src/lib/gemini.ts`가 콘텐츠 요약용으로 사용; 에이전트가 사용하는 채팅 모델은 `adk_agent/.env`의 `SAP_AGENT_MODEL`에서 설정 |
 | `LOG_LEVEL` | 아니오 | `info` | `debug | info | warn | error` |
 | `LOG_PAYLOAD` | 아니오 | `meta` | `meta` (상태 + 카운트) 또는 `full` (응답 본문) |
@@ -37,7 +37,7 @@
 |------|------|--------|------|
 | `DATABASE_URL` | 예 | — | Next.js와 동일한 DB |
 | `SAP_HOST` | 예 | — | SAP Gateway 호스트명 (스킴 없음) |
-| `EMBED_MODEL` | 예 | `gemini-embedding-001` | RAG **쿼리** 경로에 사용. 차원 `EMBED_OUTPUT_DIM`의 벡터를 생성해야 함 |
+| `EMBED_MODEL` | 예 | `gemini-embedding-2` | RAG **쿼리** 경로에 사용. 차원 `EMBED_OUTPUT_DIM`의 벡터를 생성해야 함 |
 | `EMBED_OUTPUT_DIM` | 예 | `3072` | 컬럼 타입 `vector(3072)`와 일치해야 함 |
 | `SAP_CRED_ENCRYPTION_KEY` | 예 | — | Fernet 키. `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`로 생성 |
 | `GOOGLE_API_KEY` | 조건부 | — | ADC가 없으면 필수 |
@@ -84,7 +84,7 @@ LOG_FORMAT=pretty
 GOOGLE_API_KEY=AIza...
 SAP_AGENT_MODEL=gemini-3.1-pro-preview
 
-EMBED_MODEL=gemini-embedding-001
+EMBED_MODEL=gemini-embedding-2
 EMBED_OUTPUT_DIM=3072
 EMBED_NORMALIZE=true
 
@@ -202,12 +202,11 @@ SDK가 Application Default Credentials을 자동으로 사용합니다.
 
 | 용도 | 기본 모델 | 설정 위치 |
 |------|----------|----------|
-| 임베딩 (인제스션) | `gemini-embedding-2-preview` | `GEMINI_EMBEDDING_MODEL` (Next.js) |
-| 임베딩 (에이전트의 RAG 쿼리) | `gemini-embedding-001` | `EMBED_MODEL` (ADK) |
+| 임베딩 | `gemini-embedding-2` | `GEMINI_EMBEDDING_MODEL` (Next.js) / `EMBED_MODEL` (ADK) |
 | 채팅 / 에이전트 | `gemini-3.1-pro-preview` | `SAP_AGENT_MODEL` (ADK) |
 | 콘텐츠 요약 | `gemini-3.1-pro-preview` | `GEMINI_CHAT_MODEL` (Next.js) |
 
-두 임베딩 모델 모두 3072차원 벡터를 출력하고 동일한 `embeddings.embedding`
+임베딩 모델은 3072차원 벡터를 출력하고 `embeddings.embedding`
 컬럼을 대상으로 합니다. 다른 차원으로 전환하려면 `EMBED_OUTPUT_DIM`을
 업데이트하고 새 DB에 대해 `pnpm db:setup`을 다시 실행하세요 (또는
 마이그레이션 — `vector(N)` 컬럼은 in-place로 변경할 수 없습니다).

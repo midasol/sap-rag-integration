@@ -5,7 +5,7 @@ import os
 
 from google import genai
 
-_MODEL = os.getenv("EMBED_MODEL", "gemini-embedding-001")
+_MODEL = os.getenv("EMBED_MODEL", "gemini-embedding-2")
 _DIM = int(os.getenv("EMBED_OUTPUT_DIM", "3072"))
 _NORMALIZE = os.getenv("EMBED_NORMALIZE", "true").lower() == "true"
 _client = None

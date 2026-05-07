@@ -57,7 +57,7 @@ flowchart LR
 | エージェント | Google ADK Python（`google-adk>=1.27`）、5 ツール付き `LlmAgent`、オプションの MCP ツールセット |
 | エージェントトランスポート | `google.adk.cli.fast_api.get_fast_api_app` でビルドされた FastAPI、`/run_sse` 上の SSE |
 | LLM | `gemini-3.1-pro-preview`（`SAP_AGENT_MODEL` で上書き可） |
-| 埋め込み | `gemini-embedding-2-preview`（Next.js インジェスション）と `gemini-embedding-001`（ADK クエリパス）。どちらも 3072 次元ベクトルを生成 |
+| 埋め込み | `gemini-embedding-2`（インジェスションと ADK クエリパスの両方）。3072 次元ベクトルを生成 |
 | ベクトルストア | PostgreSQL 17 + `pgvector`（`halfvec(3072)` と HNSW インデックス） |
 | ファイルストレージ | Google Cloud Storage。`/api/files/...` 経由でトラバーサルガード付きで配信 |
 | 認証（Web） | iron-session クッキー `sap_session`（8 時間）; 別途 `sap_oauth_pending` クッキー（10 分） |
@@ -157,7 +157,7 @@ flowchart LR
   Cat -- テキスト --> Chunk["chunkText(2000, 200)"]
   Cat -- PDF --> Split["pdf-lib で 6 ページスライスに分割"]
   Cat -- 画像/音声/動画 --> Multi["マルチモーダル埋め込み + AI サマリー"]
-  Chunk --> Embed["gemini-embedding-2-preview (3072d)"]
+  Chunk --> Embed["gemini-embedding-2 (3072d)"]
   Split --> Embed
   Multi --> Embed
   Embed --> Upload["uploadToGCS uploads/{uuid}{ext}"]

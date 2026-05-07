@@ -429,7 +429,7 @@ SAP_SESSION_SECRET=<32자 이상 비밀키 — openssl rand -base64 48>
 
 # === 선택 사항 ===
 GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
-# GEMINI_EMBEDDING_MODEL=gemini-embedding-2-preview
+# GEMINI_EMBEDDING_MODEL=gemini-embedding-2
 # GEMINI_CHAT_MODEL=gemini-3.1-pro-preview
 
 # === ADK 백엔드 ===
@@ -730,7 +730,7 @@ cp adk_agent/.env.example adk_agent/.env
 ```env
 # === 데이터베이스 / RAG ===
 DATABASE_URL=postgresql://username:password@localhost:5432/gemini_rag
-EMBED_MODEL=gemini-embedding-2-preview
+EMBED_MODEL=gemini-embedding-2
 EMBED_OUTPUT_DIM=3072
 EMBED_NORMALIZE=false
 
@@ -1024,7 +1024,7 @@ OAuth 팝업이 닫히지 않거나 세션이 설정되지 않는 경우:
 | 채팅 UI / 인제스천 | Next.js 16 (App Router), TypeScript, React 19 |
 | 에이전트 프레임워크 | Google ADK (Python), 단일 LlmAgent |
 | 에이전트 API | FastAPI, 포트 8200 |
-| Embedding Model | gemini-embedding-2-preview (3072 차원) |
+| Embedding Model | gemini-embedding-2 (3072 차원) |
 | LLM | Gemini (스트리밍, 도구 사용) |
 | Vector DB | PostgreSQL + pgvector |
 | ORM | Drizzle ORM |

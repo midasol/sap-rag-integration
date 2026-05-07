@@ -50,8 +50,7 @@
 | エージェントランタイム | `google-adk>=1.27`（Python 3.11+） | `LlmAgent` + `McpToolset`; `get_fast_api_app` が FastAPI サーフェスをビルド |
 | エージェントトランスポート | FastAPI（uvicorn） | `/run_sse` 上の SSE; `predev` が `/healthz` をヘルスプローブ |
 | LLM | `gemini-3.1-pro-preview` | `SAP_AGENT_MODEL` で上書き可 |
-| 埋め込み（インジェスション） | `gemini-embedding-2-preview` | 3072 次元 |
-| 埋め込み（RAG クエリ） | `gemini-embedding-001` | 3072 次元、`task_type=RETRIEVAL_QUERY` |
+| 埋め込み | `gemini-embedding-2` | 3072 次元（RAG パスで `task_type=RETRIEVAL_QUERY`） |
 | ベクトルストア | PostgreSQL 17 + `pgvector` `halfvec(3072)` | HNSW インデックス; コサイン距離 |
 | ORM | Drizzle（Next 側）+ asyncpg（ADK 側） | コネクションプールを共有しない |
 | ファイルストレージ | Google Cloud Storage | トラバーサルガード付き `/api/files/[...path]` で配信 |
@@ -493,9 +492,9 @@ Vitest 設定（`vitest.config.ts`）: `node` 環境、`src/**/__tests__/**/*.te
 
 `pipeline-state.ts` とデフォルトの ADK セッションバックエンド（`memory`）はどちらもプロセス再起動でリセットされます。マルチレプリカ本番環境では ADK を `ADK_SESSION_BACKEND=vertex` に切り替えて Vertex AI Agent Engine セッションストアを使用してください。
 
-### 15.5 埋め込みモデルのパリティ
+### 15.5 埋め込みモデル
 
-インジェスションパスは `gemini-embedding-2-preview`（Next 側）を使用します; RAG クエリパスは `gemini-embedding-001`（ADK 側）を使用します。どちらも `vector(3072)` をターゲットとし、互換性のある埋め込みを使用します。どちらかを変更する場合は、対応する環境変数（`GEMINI_EMBEDDING_MODEL` または `EMBED_MODEL`）を更新し、`EMBED_OUTPUT_DIM` がカラム型と一致することを確認してください — `vector(N)` カラムはインプレースで ALTER できません。
+インジェスションパス（Next 側）と RAG クエリパス（ADK 側）はどちらも `gemini-embedding-2` を使用し、`vector(3072)` をターゲットとします。モデルを変更する場合は `GEMINI_EMBEDDING_MODEL` と `EMBED_MODEL` の両方を更新し、`EMBED_OUTPUT_DIM` がカラム型と一致することを確認してください — `vector(N)` カラムはインプレースで ALTER できません。
 
 ### 15.6 廃止されたアーティファクト
 

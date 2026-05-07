@@ -24,7 +24,7 @@ Two env files, one per process. Templates ship in
 | `SAP_SESSION_SECRET` | yes | — | iron-session signing key. ≥ 32 chars. `openssl rand -base64 48` |
 | `ADK_BASE_URL` | yes | `http://localhost:8200` | Read directly via `process.env`; `pnpm predev` health-probes this URL |
 | `GOOGLE_APPLICATION_CREDENTIALS` | no | — | Absolute path to a service account JSON. If unset, falls back to ADC. `pnpm gcp:setup` populates this. |
-| `GEMINI_EMBEDDING_MODEL` | no | `gemini-embedding-2-preview` | 3072-dim embedding model used during ingestion |
+| `GEMINI_EMBEDDING_MODEL` | no | `gemini-embedding-2` | 3072-dim embedding model used during ingestion |
 | `GEMINI_CHAT_MODEL` | no | `gemini-3.1-pro-preview` | Used by `src/lib/gemini.ts` for content summaries; the chat model the agent uses is set in `adk_agent/.env` (`SAP_AGENT_MODEL`) |
 | `LOG_LEVEL` | no | `info` | `debug | info | warn | error` |
 | `LOG_PAYLOAD` | no | `meta` | `meta` (status + counts) or `full` (response body) |
@@ -38,7 +38,7 @@ Two env files, one per process. Templates ship in
 |-----|----------|---------|-------|
 | `DATABASE_URL` | yes | — | Same DB as Next.js |
 | `SAP_HOST` | yes | — | SAP Gateway hostname (no scheme) |
-| `EMBED_MODEL` | yes | `gemini-embedding-001` | Used for the RAG **query** path. Must produce vectors of dim `EMBED_OUTPUT_DIM` |
+| `EMBED_MODEL` | yes | `gemini-embedding-2` | Used for the RAG **query** path. Must produce vectors of dim `EMBED_OUTPUT_DIM` |
 | `EMBED_OUTPUT_DIM` | yes | `3072` | Must match the column type `vector(3072)` |
 | `SAP_CRED_ENCRYPTION_KEY` | yes | — | Fernet key. Generate with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
 | `GOOGLE_API_KEY` | conditional | — | Required unless ADC is available |
@@ -85,7 +85,7 @@ LOG_FORMAT=pretty
 GOOGLE_API_KEY=AIza...
 SAP_AGENT_MODEL=gemini-3.1-pro-preview
 
-EMBED_MODEL=gemini-embedding-001
+EMBED_MODEL=gemini-embedding-2
 EMBED_OUTPUT_DIM=3072
 EMBED_NORMALIZE=true
 
@@ -202,12 +202,11 @@ Files in `uploads/` are immutable (UUID names), so the long cache is safe.
 
 | Use | Default model | Where set |
 |-----|--------------|-----------|
-| Embedding (ingestion) | `gemini-embedding-2-preview` | `GEMINI_EMBEDDING_MODEL` (Next.js) |
-| Embedding (RAG query in agent) | `gemini-embedding-001` | `EMBED_MODEL` (ADK) |
+| Embedding | `gemini-embedding-2` | `GEMINI_EMBEDDING_MODEL` (Next.js) / `EMBED_MODEL` (ADK) |
 | Chat / agent | `gemini-3.1-pro-preview` | `SAP_AGENT_MODEL` (ADK) |
 | Content summaries | `gemini-3.1-pro-preview` | `GEMINI_CHAT_MODEL` (Next.js) |
 
-Both embedding models output 3072-dim vectors and target the same
+The embedding model outputs 3072-dim vectors targeting the
 `embeddings.embedding` column. If you switch to a different dimension,
 update `EMBED_OUTPUT_DIM` and re-run `pnpm db:setup` against a fresh DB
 (or migrate — `vector(N)` columns can't be altered in place).

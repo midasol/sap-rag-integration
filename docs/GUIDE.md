@@ -69,8 +69,7 @@ developers.
 | Agent runtime | `google-adk>=1.27` (Python 3.11+) | `LlmAgent` + `McpToolset`; `get_fast_api_app` builds the FastAPI surface |
 | Agent transport | FastAPI (uvicorn) | SSE on `/run_sse`; `predev` health-probes `/healthz` |
 | LLM | `gemini-3.1-pro-preview` | Override via `SAP_AGENT_MODEL` |
-| Embedding (ingestion) | `gemini-embedding-2-preview` | 3072-dim |
-| Embedding (RAG query) | `gemini-embedding-001` | 3072-dim, `task_type=RETRIEVAL_QUERY` |
+| Embedding | `gemini-embedding-2` | 3072-dim (`task_type=RETRIEVAL_QUERY` on the RAG path) |
 | Vector store | PostgreSQL 17 + `pgvector` `halfvec(3072)` | HNSW index; cosine distance |
 | ORM | Drizzle (Next side) + asyncpg (ADK side) | They do not share a connection pool |
 | File storage | Google Cloud Storage | served via `/api/files/[...path]` with traversal guard |
@@ -650,14 +649,13 @@ reset on process restart. For multi-replica production, switch ADK to
 `ADK_SESSION_BACKEND=vertex` so the Vertex AI Agent Engine session store
 is used.
 
-### 15.5 Embedding model parity
+### 15.5 Embedding model
 
-The ingestion path uses `gemini-embedding-2-preview` (Next side); the
-RAG-query path uses `gemini-embedding-001` (ADK side). Both target
-`vector(3072)` and use compatible embeddings. If you change either,
-update the corresponding env var (`GEMINI_EMBEDDING_MODEL` or
-`EMBED_MODEL`) and verify `EMBED_OUTPUT_DIM` still matches the column
-type — `vector(N)` columns can't be ALTERed in place.
+Both the ingestion path (Next side) and the RAG-query path (ADK side)
+use `gemini-embedding-2` targeting `vector(3072)`. If you change the
+model, update both `GEMINI_EMBEDDING_MODEL` and `EMBED_MODEL`, and
+verify `EMBED_OUTPUT_DIM` still matches the column type — `vector(N)`
+columns can't be ALTERed in place.
 
 ### 15.6 Obsolete artifacts
 

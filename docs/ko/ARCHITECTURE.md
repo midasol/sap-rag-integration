@@ -62,7 +62,7 @@ flowchart LR
 | 에이전트 | Google ADK Python (`google-adk>=1.27`), 도구 5개를 지닌 `LlmAgent`, 선택적 MCP toolset |
 | 에이전트 트랜스포트 | `google.adk.cli.fast_api.get_fast_api_app`이 빌드한 FastAPI, `/run_sse`의 SSE |
 | LLM | `gemini-3.1-pro-preview` (`SAP_AGENT_MODEL`로 오버라이드) |
-| 임베딩 | `gemini-embedding-2-preview` (Next.js 인제스션) 및 `gemini-embedding-001` (ADK 쿼리 경로); 둘 다 3072차원 벡터 생성 |
+| 임베딩 | `gemini-embedding-2` (인제스션 및 ADK 쿼리 경로 모두); 3072차원 벡터 생성 |
 | 벡터 저장소 | PostgreSQL 17 + `pgvector`, `halfvec(3072)`와 HNSW 인덱스 |
 | 파일 저장소 | Google Cloud Storage; traversal 가드를 갖춘 `/api/files/...`로 다시 서빙 |
 | 인증 (웹) | iron-session 쿠키 `sap_session` (8시간); 별도 `sap_oauth_pending` 쿠키 (10분) |
@@ -174,7 +174,7 @@ flowchart LR
   Cat -- text --> Chunk["chunkText(2000, 200)"]
   Cat -- pdf --> Split["pdf-lib로 6페이지 슬라이스 분할"]
   Cat -- image/audio/video --> Multi["멀티모달 임베딩 + AI 요약"]
-  Chunk --> Embed["gemini-embedding-2-preview (3072d)"]
+  Chunk --> Embed["gemini-embedding-2 (3072d)"]
   Split --> Embed
   Multi --> Embed
   Embed --> Upload["uploadToGCS uploads/{uuid}{ext}"]

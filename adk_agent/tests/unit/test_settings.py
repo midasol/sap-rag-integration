@@ -8,7 +8,7 @@ def test_load_with_minimum(monkeypatch):
         ("DATABASE_URL", "postgresql://x"),
         ("SAP_HOST", "h"),
         ("SAP_AUTH_TYPE", "basic"),
-        ("EMBED_MODEL", "gemini-embedding-001"),
+        ("EMBED_MODEL", "gemini-embedding-2"),
         ("EMBED_OUTPUT_DIM", "3072"),
         ("SAP_CRED_ENCRYPTION_KEY", "x" * 44),
     ]:
@@ -28,7 +28,7 @@ def test_sap_auth_type_defaults_to_basic(monkeypatch):
     for k, v in [
         ("DATABASE_URL", "postgresql://x"),
         ("SAP_HOST", "h"),
-        ("EMBED_MODEL", "gemini-embedding-001"),
+        ("EMBED_MODEL", "gemini-embedding-2"),
         ("EMBED_OUTPUT_DIM", "3072"),
         ("SAP_CRED_ENCRYPTION_KEY", "x" * 44),
     ]:
@@ -43,7 +43,7 @@ def test_sap_auth_type_overridable(monkeypatch):
         ("DATABASE_URL", "postgresql://x"),
         ("SAP_HOST", "h"),
         ("SAP_AUTH_TYPE", "sap_oauth"),
-        ("EMBED_MODEL", "gemini-embedding-001"),
+        ("EMBED_MODEL", "gemini-embedding-2"),
         ("EMBED_OUTPUT_DIM", "3072"),
         ("SAP_CRED_ENCRYPTION_KEY", "x" * 44),
     ]:
