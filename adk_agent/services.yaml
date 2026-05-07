@@ -1,0 +1,537 @@
+# SAP Gateway Services Configuration - Extended Examples
+# Copy this file to services.yaml and customize for your SAP environment
+
+# Gateway URL configuration
+gateway:
+  # Base URL pattern for OData services
+  # Standard SAP Gateway pattern: https://{host}:{port}/sap/opu/odata
+  # For different SAP systems, adjust the pattern accordingly
+  base_url_pattern: "https://{host}:{port}/sap/opu/odata"
+
+  # Metadata endpoint suffix (standard OData)
+  metadata_suffix: "/$metadata"
+
+  # Service catalog path for listing available services
+  service_catalog_path: "/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/ServiceCollection"
+
+  # Authentication endpoint configuration
+  # Controls which endpoint is used for CSRF token retrieval and authentication validation
+  auth_endpoint:
+    # Option 1 (RECOMMENDED): Use generic catalog metadata
+    # - Works without requiring specific services to be available
+    # - More flexible and portable across different SAP systems
+    # - Does not depend on any custom service being deployed
+    use_catalog_metadata: true
+
+    # Option 2: Use specific service for authentication
+    # - Uncomment the lines below if catalog service is not available
+    # - Or if you need to authenticate against a specific service
+    # use_catalog_metadata: false
+    # service_id: API_PRODUCT_SRV  # Must match a service ID defined below
+    # entity_name: A_Product       # Must be an entity in the specified service
+
+# SAP OData Services
+# Each service defines:
+# - id: Unique identifier used in MCP tool calls
+# - name: Human-readable service name
+# - path: Service path relative to base_url_pattern
+# - version: OData version (v2 or v4)
+# - entities: List of entity sets available in this service
+# - custom_headers: Optional HTTP headers for this service
+services:
+  # Product Master Data Service (standard SAP S/4HANA API)
+  - id: API_PRODUCT_SRV
+    name: "Product Master Data Service"
+    path: "/sap/api_product_srv"      # lowercase namespace - canonical SAP-published URL
+    version: v2
+    description: "Standard SAP product (material) master data — header, plant, sales, valuation, units"
+    entities:
+      - name: A_Product
+        key_field: Product
+        description: "Product master header (cross-plant)"
+        navigations:
+          - to_Description
+          - to_Plant
+          - to_ProductSales
+          - to_SalesDelivery
+          - to_Valuation
+          - to_ProductUnitsOfMeasure
+        default_select:
+          - Product
+          - ProductType
+          - CrossPlantStatus
+          - CreationDate
+          - CreatedByUser
+          - LastChangeDate
+          - LastChangedByUser
+      - name: A_ProductDescription
+        key_field: Product        # composite (Product, Language) - primary stored only
+        description: "Product descriptions in multiple languages"
+        default_select:
+          - Product
+          - Language
+          - ProductDescription
+      - name: A_ProductPlant
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Product plant-level master data"
+        navigations:
+          - to_PlantSales
+          - to_PlantStorage
+          - to_StorageLocation
+          - to_ProductPlantProcurement
+          - to_ProductSupplyPlanning
+        default_select:
+          - Product
+          - Plant
+          - PurchasingGroup
+          - CountryOfOrigin
+          - ProductionInvtryManagedLoc
+          - ProfileCode
+      - name: A_ProductSales
+        key_field: Product
+        description: "Product sales-relevant cross-distribution-chain data"
+        default_select:
+          - Product
+          - SalesStatus
+          - TaxClassification
+          - TransportationGroup
+      - name: A_ProductSalesDelivery
+        key_field: Product        # composite (Product, ProductSalesOrg, ProductDistributionChnl)
+        description: "Product sales-org/distribution-channel-specific data"
+        navigations:
+          - to_SalesTax
+          - to_SalesText
+        default_select:
+          - Product
+          - ProductSalesOrg
+          - ProductDistributionChnl
+          - MinimumOrderQuantity
+          - SupplyingPlant
+          - AccountDetnProductGroup
+      - name: A_ProductStorage
+        key_field: Product
+        description: "Cross-plant storage data (storage conditions, hazmat, shelf life)"
+        default_select:
+          - Product
+          - StorageConditions
+          - TemperatureConditionInd
+          - HazardousMaterialNumber
+          - MinRemainingShelfLife
+      - name: A_ProductValuation
+        key_field: Product        # composite (Product, ValuationArea, ValuationType)
+        description: "Product valuation/pricing per valuation area"
+        navigations:
+          - to_MLAccount
+          - to_MLPrices
+          - to_ValuationAccount
+          - to_ValuationCosting
+        default_select:
+          - Product
+          - ValuationArea
+          - ValuationType
+          - ValuationClass
+          - StandardPrice
+          - PriceUnitQty
+          - InventoryValuationProcedure
+      - name: A_ProductUnitsOfMeasure
+        key_field: Product        # composite (Product, AlternativeUnit)
+        description: "Alternative units of measure for the product"
+        navigations:
+          - to_InternationalArticleNumber
+        default_select:
+          - Product
+          - AlternativeUnit
+          - QuantityNumerator
+          - QuantityDenominator
+          - MaterialVolume
+          - GrossWeight
+          - WeightUnit
+      - name: A_ProductBasicText
+        key_field: Product        # composite (Product, Language) - primary stored only
+        description: "Product basic text (multilingual long text)"
+        default_select:
+          - Product
+          - Language
+          - LongText
+      - name: A_ProductInspectionText
+        key_field: Product        # composite (Product, Language) - primary stored only
+        description: "Product inspection text (multilingual)"
+        default_select:
+          - Product
+          - Language
+          - LongText
+      - name: A_ProductMLAccount
+        key_field: Product        # composite (Product, ValuationArea, ValuationType, CurrencyRole) - primary stored only
+        description: "Material Ledger account assignments per valuation area/type/currency"
+        default_select:
+          - Product
+          - ValuationArea
+          - ValuationType
+          - CurrencyRole
+          - Currency
+          - ProductPriceControl
+          - PriceUnitQty
+          - MovingAveragePrice
+      - name: A_ProductMLPrices
+        key_field: Product        # composite (Product, ValuationArea, ValuationType, CurrencyRole) - primary stored only
+        description: "Material Ledger prices per valuation area/type/currency"
+        default_select:
+          - Product
+          - ValuationArea
+          - ValuationType
+          - CurrencyRole
+          - Currency
+          - FuturePrice
+          - FuturePriceValidityStartDate
+          - PlannedPrice
+      - name: A_ProductPlantCosting
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Plant-level costing data (overhead, origin group)"
+        default_select:
+          - Product
+          - Plant
+          - IsCoProduct
+          - CostingLotSize
+          - VarianceKey
+          - BaseUnit
+      - name: A_ProductPlantForecasting
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Plant-level forecasting parameters"
+        default_select:
+          - Product
+          - Plant
+          - ConsumptionRefUsageEndDate
+          - ConsumptionQtyMultiplier
+          - ConsumptionReferenceProduct
+          - ConsumptionReferencePlant
+      - name: A_ProductPlantIntlTrd
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Plant-level foreign trade / customs data"
+        default_select:
+          - Product
+          - Plant
+          - CountryOfOrigin
+          - RegionOfOrigin
+          - ConsumptionTaxCtrlCode
+          - ProductCASNumber
+      - name: A_ProductPlantMRPArea
+        key_field: Product        # composite (Product, Plant, MRPArea) - primary stored only
+        description: "MRP area-level planning data per product/plant"
+        default_select:
+          - Product
+          - Plant
+          - MRPArea
+          - MRPType
+          - MRPResponsible
+          - MRPGroup
+          - ReorderThresholdQuantity
+      - name: A_ProductPlantProcurement
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Plant-level procurement parameters"
+        default_select:
+          - Product
+          - Plant
+          - IsAutoPurOrdCreationAllowed
+          - IsSourceListRequired
+          - SourceOfSupplyCategory
+          - ItmIsRlvtToJITDelivSchedules
+      - name: A_ProductPlantQualityMgmt
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Plant-level quality management settings"
+        default_select:
+          - Product
+          - Plant
+          - MaximumStoragePeriod
+          - QualityMgmtCtrlKey
+          - MatlQualityAuthorizationGroup
+          - HasPostToInspectionStock
+      - name: A_ProductPlantSales
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Plant-level sales data (loading group, profit center)"
+        default_select:
+          - Product
+          - Plant
+          - LoadingGroup
+          - ReplacementPartType
+          - CapPlanningQuantityInBaseUoM
+          - ProductShippingProcessingTime
+      - name: A_ProductPlantStorage
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Plant-level storage/warehouse data"
+        default_select:
+          - Product
+          - Plant
+          - InventoryForCycleCountInd
+          - ProvisioningServiceLevel
+          - CycleCountingIndicatorIsFixed
+          - ProdMaximumStoragePeriodUnit
+      - name: A_ProductPlantText
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Plant-level free text (multilingual)"
+        default_select:
+          - Product
+          - Plant
+          - LongText
+      - name: A_ProductProcurement
+        key_field: Product
+        description: "Cross-plant procurement parameters"
+        default_select:
+          - Product
+          - PurchaseOrderQuantityUnit
+          - VarblPurOrdUnitStatus
+          - PurchasingAcknProfile
+      - name: A_ProductPurchaseText
+        key_field: Product        # composite (Product, Language) - primary stored only
+        description: "Purchase order text (multilingual)"
+        default_select:
+          - Product
+          - Language
+          - LongText
+      - name: A_ProductQualityMgmt
+        key_field: Product
+        description: "Cross-plant quality management settings"
+        default_select:
+          - Product
+          - QltyMgmtInProcmtIsActive
+      - name: A_ProductSalesTax
+        key_field: Product        # composite (Product, Country, TaxCategory, TaxClassification) - primary stored only
+        description: "Sales tax classifications per country/category"
+        default_select:
+          - Product
+          - Country
+          - TaxCategory
+          - TaxClassification
+      - name: A_ProductSalesText
+        key_field: Product        # composite (Product, ProductSalesOrg, ProductDistributionChnl, Language) - primary stored only
+        description: "Sales text per sales-org/dist-channel/language"
+        default_select:
+          - Product
+          - ProductSalesOrg
+          - ProductDistributionChnl
+          - Language
+          - LongText
+      - name: A_ProductStorageLocation
+        key_field: Product        # composite (Product, Plant, StorageLocation) - primary stored only
+        description: "Storage location-level master data per product/plant"
+        default_select:
+          - Product
+          - Plant
+          - StorageLocation
+          - WarehouseStorageBin
+          - MaintenanceStatus
+          - PhysicalInventoryBlockInd
+          - CreationDate
+      - name: A_ProductSupplyPlanning
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Supply / MRP planning parameters per product/plant"
+        default_select:
+          - Product
+          - Plant
+          - FixedLotSizeQuantity
+          - MaximumLotSizeQuantity
+          - MinimumLotSizeQuantity
+          - LotSizeRoundingQuantity
+      - name: A_ProductUnitsOfMeasureEAN
+        key_field: Product        # composite (Product, AlternativeUnit, ConsecutiveNumber) - primary stored only
+        description: "EAN/UPC barcodes per alternative unit of measure"
+        default_select:
+          - Product
+          - AlternativeUnit
+          - ConsecutiveNumber
+          - ProductStandardID
+          - InternationalArticleNumberCat
+          - IsMainGlobalTradeItemNumber
+      - name: A_ProductValuationAccount
+        key_field: Product        # composite (Product, ValuationArea, ValuationType) - primary stored only
+        description: "Valuation account determination per valuation area/type"
+        default_select:
+          - Product
+          - ValuationArea
+          - ValuationType
+          - CommercialPrice1InCoCodeCrcy
+          - CommercialPrice2InCoCodeCrcy
+          - CommercialPrice3InCoCodeCrcy
+          - DevaluationYearCount
+      - name: A_ProductValuationCosting
+        key_field: Product        # composite (Product, ValuationArea, ValuationType) - primary stored only
+        description: "Valuation costing data per valuation area/type"
+        default_select:
+          - Product
+          - ValuationArea
+          - ValuationType
+          - IsMaterialCostedWithQtyStruc
+          - IsMaterialRelatedOrigin
+          - CostOriginGroup
+          - CostingOverheadGroup
+      - name: A_ProductWorkScheduling
+        key_field: Product        # composite (Product, Plant) - primary stored only
+        description: "Production work scheduling parameters per product/plant"
+        default_select:
+          - Product
+          - Plant
+          - MaterialBaseQuantity
+          - UnlimitedOverDelivIsAllowed
+          - OverDelivToleranceLimit
+          - UnderDelivToleranceLimit
+    custom_headers: {}
+
+  # Material Stock Service (standard SAP S/4HANA API)
+  - id: API_MATERIAL_STOCK_SRV
+    name: "Material Stock Service"
+    path: "/sap/api_material_stock_srv"   # lowercase namespace - canonical SAP-published URL
+    version: v2
+    description: "Material stock by plant/storage-location/batch with serial-number and account-modification breakdown"
+    entities:
+      - name: A_MaterialStock
+        key_field: Material
+        description: "Material stock header (cross-plant aggregation)"
+        navigations:
+          - to_MatlStkInAcctMod
+        default_select:
+          - Material
+          - MaterialBaseUnit
+      - name: A_MatlStkInAcctMod
+        key_field: Material        # composite (Material, Plant, StorageLocation, Batch, Supplier, Customer, WBSElementInternalID, SDDocument, SDDocumentItem, InventorySpecialStockType, InventoryStockType)
+        description: "Material stock by account-modification dimension (plant, storage location, batch, special stock)"
+        navigations:
+          - to_MaterialSerialNumber
+          - to_MaterialStock
+        default_select:
+          - Material
+          - Plant
+          - StorageLocation
+          - Batch
+          - Supplier
+          - Customer
+          - WBSElementInternalID
+          - SDDocument
+          - SDDocumentItem
+          - InventorySpecialStockType
+          - InventoryStockType
+          - MatlWrhsStkQtyInMatlBaseUnit
+      - name: A_MaterialSerialNumber
+        key_field: Material        # composite (Material, SerialNumber)
+        description: "Serialized stock items per material/serial number"
+        navigations:
+          - to_MatlStkInAcctMod
+        default_select:
+          - Material
+          - SerialNumber
+          - Plant
+          - StorageLocation
+          - InventorySpecialStockType
+          - Batch
+          - InventoryStockType
+          - Equipment
+    custom_headers: {}
+
+  # Plant Service (standard SAP S/4HANA API)
+  - id: API_PLANT_SRV
+    name: "Plant Master Service"
+    path: "/sap/api_plant_srv"            # lowercase namespace - canonical SAP-published URL
+    version: v2
+    description: "Plant master data — plant code, name, company-code assignment"
+    entities:
+      - name: A_Plant
+        key_field: Plant
+        description: "Plant master (plant code, name, company code)"
+        default_select:
+          - Plant
+          - PlantName
+          - CompanyCode
+          - CompanyCodeName
+    custom_headers: {}
+
+  # Material Document Service (standard SAP S/4HANA API)
+  - id: API_MATERIAL_DOCUMENT_SRV
+    name: "Material Document Service"
+    path: "/sap/api_material_document_srv"  # lowercase namespace - canonical SAP-published URL
+    version: v2
+    description: "Material documents (goods movements) — header, items, serial numbers"
+    entities:
+      - name: A_MaterialDocumentHeader
+        key_field: MaterialDocumentYear   # composite (MaterialDocumentYear, MaterialDocument)
+        description: "Material document header — posting/document date, transaction type, header text"
+        navigations:
+          - to_MaterialDocumentItem
+        default_select:
+          - MaterialDocumentYear
+          - MaterialDocument
+          - InventoryTransactionType
+          - DocumentDate
+          - PostingDate
+          - CreationDate
+          - CreationTime
+          - CreatedByUser
+      - name: A_MaterialDocumentItem
+        key_field: MaterialDocumentYear   # composite (MaterialDocumentYear, MaterialDocument, MaterialDocumentItem)
+        description: "Material document line items — material, plant, storage loc, batch, movement type, qty"
+        navigations:
+          - to_MaterialDocumentHeader
+          - to_SerialNumbers
+        default_select:
+          - MaterialDocumentYear
+          - MaterialDocument
+          - MaterialDocumentItem
+          - Material
+          - Plant
+          - StorageLocation
+          - Batch
+          - GoodsMovementType
+      - name: A_SerialNumberMaterialDocument
+        key_field: Material               # composite (Material, SerialNumber, MaterialDocument, MaterialDocumentItem, MaterialDocumentYear)
+        description: "Serial numbers posted per material document item"
+        default_select:
+          - Material
+          - SerialNumber
+          - MaterialDocument
+          - MaterialDocumentItem
+          - MaterialDocumentYear
+          - ManufacturerSerialNumber
+    custom_headers: {}
+
+  # Storage Location Service (standard SAP S/4HANA API)
+  - id: API_STORAGELOCATION_SRV
+    name: "Storage Location Service"
+    path: "/sap/api_storagelocation_srv"  # lowercase namespace - canonical SAP-published URL
+    version: v2
+    description: "Storage location master per plant — name, sales-org assignment, authorization-check flag"
+    entities:
+      - name: StorageLocation
+        key_field: Plant                  # composite (Plant, StorageLocation)
+        description: "Storage location master per plant"
+        default_select:
+          - Plant
+          - StorageLocation
+          - StorageLocationName
+          - SalesOrganization
+          - DistributionChannel
+          - Division
+          - IsStorLocAuthznCheckActive
+    custom_headers: {}
+
+# Configuration Tips:
+#
+# 1. Service Discovery:
+#    - Use transaction SE80 or /IWFND/MAINT_SERVICE to find service names
+#    - Service path format is usually /SAP/<SERVICE_NAME> or /<NAMESPACE>/<SERVICE_NAME>
+#
+# 2. Entity Sets:
+#    - View service metadata at: {base_url}{service_path}/$metadata
+#    - Find EntitySet names and their key fields in the metadata XML
+#
+# 3. Key Fields:
+#    - Single key: Just specify the field name (e.g., "Vbeln")
+#    - Composite key: For now, specify primary key field (enhancement needed for multi-key)
+#
+# 4. Navigations:
+#    - List navigation properties for documentation
+#    - Future enhancement: Use for automatic expansion
+#
+# 5. Custom Headers:
+#    - Add service-specific headers like sap-client, language, etc.
+#    - These are merged with authentication headers
+#
+# 6. Default Select:
+#    - Specify commonly used fields to optimize queries
+#    - Reduces payload size and improves performance

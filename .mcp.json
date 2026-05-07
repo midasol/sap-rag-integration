@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "pubsub": {
+      "type": "http",
+      "url": "https://pubsub.googleapis.com/mcp",
+      "headers": {
+        "x-goog-user-project": "your-gcp-project-id"
+      },
+      "allowedTools": [
+        "list_topics",
+        "get_topic",
+        "list_subscriptions",
+        "get_subscription",
+        "publish"
+      ],
+      "allowedTopics": [
+        "sapphire-demo"
+      ],
+      "allowedSubscriptions": [
+        "sapphire-demo-sub"
+      ]
+    }
+  }
+}

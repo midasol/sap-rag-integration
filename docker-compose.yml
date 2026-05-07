@@ -1,0 +1,19 @@
+services:
+  nextjs:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file: .env.local
+    environment:
+      - ADK_BASE_URL=http://adk:8200
+    depends_on:
+      - adk
+
+  adk:
+    build:
+      context: .
+      dockerfile: adk_agent/Dockerfile
+    env_file: .env.local
+    ports:
+      - "8200:8200"
+    restart: unless-stopped
